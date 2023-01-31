@@ -1,6 +1,8 @@
 import streamlit as st
 import pandas as pd
 import altair as alt
+import matplotlib.pyplot as plt
+import numpy as np
 
 def get_data_from_url(url: str):
     df = pd.read_csv(url)
@@ -50,7 +52,9 @@ def plot_co2_emissions(df):
     ).properties(width=900, height=500)
 
     # Show line chart
-    st.altair_chart(chart.transform_filter(alt.datum.year >= year_range[0]).transform_filter(alt.datum.year <= year_range[1]))
+    return chart
+
+
 
 # Create scatter plot of co2 vs gdp per capita
 def plot_co2_vs_gdp(df, year_range):
@@ -72,27 +76,45 @@ def plot_co2_vs_gdp(df, year_range):
         tooltip=['country', 'co2', 'gdp_per_capita']
     ).properties(width=900, height=500)
     
-    st.altair_chart(chart, use_container_width=True)
+    return chart
 
 def plot_co2_sources(df, year_range):
     st.title("CO2 emissions by source per continent")
 
     # filter_df based on maximum year on slider and selected countries in multiselect box
     filtered_df = df[df['year'] == max(year_range)]
-    filtered_df = filter_continents(filtered_df)
+    filtered_df = filter_data(df, selected_countries)
 
     sources = ["country", "coal_co2", "gas_co2", "flaring_co2", "oil_co2", "other_industry_co2", "cement_co2"]
     filtered_df = filtered_df[sources]
 
-    st.write(filtered_df)
     chart = alt.Chart(filtered_df).transform_fold(sources, as_=["key", "value"]).mark_bar().encode(
         x=alt.X("key:N", axis=None),
-        y=alt.Y("value:Q"),
+        y=alt.Y("value:Q", title = "emissions in million tonnes"),
         color=alt.Color("key:N", title=None),
         column=alt.Column("country", title=None, header=alt.Header(labelOrient=("bottom")))
     )
 
-    st.write(chart)
+    return chart
+
+def plot_other_greenhouse_gases(df, year_range):
+    st.title("Other greenhouse gas emissions per continent")
+
+    # filter_df based on maximum year on slider and selected countries in multiselect box
+    filtered_df = df[df['year'] == max(year_range)]
+    filtered_df = filter_data(df, selected_countries)
+
+    sources = ["country", "methane", "nitrous_oxide"]
+    filtered_df = filtered_df[sources]
+
+    chart = alt.Chart(filtered_df).transform_fold(sources, as_=["key", "value"]).mark_bar().encode(
+        x=alt.X("key:N", axis=None),
+        y=alt.Y("value:Q", title = "emissions in million tonnes"),
+        color=alt.Color("key:N", title=None),
+        column=alt.Column("country", title=None, header=alt.Header(labelOrient=("bottom")))
+    )
+
+    return chart 
 
 
 url = "https://raw.githubusercontent.com/owid/co2-data/master/owid-co2-data.csv"
@@ -101,15 +123,15 @@ df = clean_data(df)
 
 st.write(df.head()) 
 
-# Current year as final value
-current_year = pd.to_datetime("today").year
-
 # year slider
-year_range = st.slider("Year Range", min_value=int(df['year'].min()), max_value=int(current_year), value=(int(df['year'].min()), int(current_year)), step=1)
+year_range = st.slider("Year Range", min_value=int(df['year'].min()), max_value=int(df['year'].max()), value=(int(df['year'].min()), int(df['year'].max())), step=1)
 
 # multiselect box
-selected_countries = st.multiselect("Select countries", options=['World', 'Asia', 'Oceania', 'Europe', 'Africa', 'North America', 'South America', 'Antarctica'], default=["World"])
+selected_countries = st.multiselect("Select countries", options=['World', 'Asia', 'Oceania', 'Europe', 'Africa', 'North America', 'South America', 'Antarctica'], default=['Asia', 'Oceania', 'Europe', 'Africa', 'North America', 'South America'])
 
-plot_co2_emissions(df)
-plot_co2_vs_gdp(df, year_range)
-plot_co2_sources(df, year_range)
+chart0 = plot_co2_emissions(df)
+chart1 = plot_co2_vs_gdp(df, year_range)
+chart2 = plot_co2_sources(df, year_range)
+chart3 = plot_other_greenhouse_gases(df, year_range)
+
+st.write(alt.hconcat(chart0, chart1, chart2, chart3))
