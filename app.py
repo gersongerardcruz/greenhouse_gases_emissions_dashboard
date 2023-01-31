@@ -35,19 +35,19 @@ def remove_non_countries(df):
     return df[df["country"].isin(non_countries) == False]
 
 # Create line chart of co2 emissions over time per continent
-def plot_co2_emissions(df):
-    st.title("CO2 Emissions Over Time")
+def plot_greenhouse_gas_emissions(df, ghg: str):
+    st.title(f"{ghg} emissions over time")
     
     # Filter data based on countries
     filtered_df = filter_data(df, selected_countries)
 
     # Remove years with no values
-    filtered_df = filtered_df.loc[filtered_df['year'].between(year_range[0], year_range[1])].dropna(subset=['co2'])
+    filtered_df = filtered_df.loc[filtered_df['year'].between(year_range[0], year_range[1])].dropna(subset=[ghg])
 
     # Create chart
     chart = alt.Chart(filtered_df).mark_line().encode(
         x='year:Q',
-        y='co2:Q',
+        y=f'{ghg}:Q',
         color='country:N'
     ).properties(width=900, height=500)
 
@@ -55,10 +55,9 @@ def plot_co2_emissions(df):
     return chart
 
 
-
 # Create scatter plot of co2 vs gdp per capita
 def plot_co2_vs_gdp(df, year_range):
-    st.title("CO2 emissions vs GDP per Capita")
+    st.title("Greenhouse gas emissions vs GDP per Capita")
 
     # filter_df based on maximum year on slider and selected countries in multiselect box
     filtered_df = df[df['year'] == max(year_range)]
@@ -70,7 +69,7 @@ def plot_co2_vs_gdp(df, year_range):
     # Create a scatter plot with the y-axis being the mean 'co2' value and the x-axis being the mean 'gdp_per_capita' value
     chart = alt.Chart(mean_df).mark_circle(size=60).encode(
         alt.X('gdp_per_capita:Q', axis=alt.Axis(title='GDP per capita')),
-        alt.Y('co2:Q', axis=alt.Axis(title='CO2 Emissions (metric tons per capita)')),
+        alt.Y('total_ghg:Q', axis=alt.Axis(title='CO2 Emissions (metric tons per capita)')),
         color=alt.Color('country:N', legend=None),
         size=alt.Size('population:Q', legend=None),
         tooltip=['country', 'co2', 'gdp_per_capita']
@@ -123,15 +122,18 @@ df = clean_data(df)
 
 st.write(df.head()) 
 
-# year slider
-year_range = st.slider("Year Range", min_value=int(df['year'].min()), max_value=int(df['year'].max()), value=(int(df['year'].min()), int(df['year'].max())), step=1)
+# year slider, set constraints to 1990 and 2019 as this range contains the most complete data
+year_range = st.slider("Year Range", min_value=int(1990), max_value=int(df['year'].max() - 2), value=(int(1990), int(df['year'].max() - 2)), step=1)
 
 # multiselect box
 selected_countries = st.multiselect("Select countries", options=['World', 'Asia', 'Oceania', 'Europe', 'Africa', 'North America', 'South America', 'Antarctica'], default=['Asia', 'Oceania', 'Europe', 'Africa', 'North America', 'South America'])
 
-chart0 = plot_co2_emissions(df)
+chart0 = plot_greenhouse_gas_emissions(df, "total_ghg")
 chart1 = plot_co2_vs_gdp(df, year_range)
 chart2 = plot_co2_sources(df, year_range)
 chart3 = plot_other_greenhouse_gases(df, year_range)
+chart4 = plot_greenhouse_gas_emissions(df, "co2")
+chart5 = plot_greenhouse_gas_emissions(df, "methane")
+chart6 = plot_greenhouse_gas_emissions(df, "nitrous_oxide")
 
-st.write(alt.hconcat(chart0, chart1, chart2, chart3))
+st.write(alt.hconcat(chart0, chart1, chart2, chart3, chart4, chart5, chart6))
