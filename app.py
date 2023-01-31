@@ -15,6 +15,11 @@ def filter_data(df, selected_countries):
     # Filter data based on selected countries
     return df[df["country"].isin(selected_countries)]
 
+def filter_continents(df):
+    # Filter data based on continents
+    continents = ['Asia', 'Oceania', 'Europe', 'Africa', 'North America', 'South America', 'Antarctica']
+    return df[df["country"].isin(continents)]
+
 def remove_non_countries(df):
     # Remove non-countries to get country level information
     non_countries = ['World', 'Asia', 'Oceania', 'Europe', 'Africa', 'North America', 'South America', 'Antarctica'
@@ -69,6 +74,27 @@ def plot_co2_vs_gdp(df, year_range):
     
     st.altair_chart(chart, use_container_width=True)
 
+def plot_co2_sources(df, year_range):
+    st.title("CO2 emissions by source per continent")
+
+    # filter_df based on maximum year on slider and selected countries in multiselect box
+    filtered_df = df[df['year'] == max(year_range)]
+    filtered_df = filter_continents(filtered_df)
+
+    sources = ["country", "coal_co2", "gas_co2", "flaring_co2", "oil_co2", "other_industry_co2", "cement_co2"]
+    filtered_df = filtered_df[sources]
+
+    st.write(filtered_df)
+    chart = alt.Chart(filtered_df).transform_fold(sources, as_=["key", "value"]).mark_bar().encode(
+        x=alt.X("key:N", axis=None),
+        y=alt.Y("value:Q"),
+        color=alt.Color("key:N", title=None),
+        column=alt.Column("country", title=None, header=alt.Header(labelOrient=("bottom")))
+    )
+
+    st.write(chart)
+
+
 url = "https://raw.githubusercontent.com/owid/co2-data/master/owid-co2-data.csv"
 df = get_data_from_url(url)
 df = clean_data(df)
@@ -86,3 +112,4 @@ selected_countries = st.multiselect("Select countries", options=['World', 'Asia'
 
 plot_co2_emissions(df)
 plot_co2_vs_gdp(df, year_range)
+plot_co2_sources(df, year_range)
