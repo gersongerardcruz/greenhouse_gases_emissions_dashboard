@@ -5,7 +5,7 @@ st.set_page_config(page_title="GHG Emissions Dashboard", layout="wide")
 
 url = "https://raw.githubusercontent.com/owid/co2-data/master/owid-co2-data.csv"
 df = get_data_from_url(url)
-df = clean_data(df)
+df = process_data(df)
 
 # year slider, set constraints to 1990 and 2018 as this range contains the most complete data
 year_range = st.sidebar.slider("Year Range", min_value=int(1990), max_value=int(2018), value=(int(1990), int(2018)), step=1)

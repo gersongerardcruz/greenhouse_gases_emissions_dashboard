@@ -4,26 +4,51 @@ import matplotlib.pyplot as plt
 import numpy as np
 import streamlit as st
 
-def get_data_from_url(url: str):
+def get_data_from_url(url):
+
+    """
+    Loads data from url into a pandas dataframe
+    :param url: str - url of dataset
+    :return: pandas dataframe of raw data 
+    """
+
     df = pd.read_csv(url)
     return df
 
-def clean_data(df):
+
+def process_data(df):
+
+    """
+    Performs basic cleaning by filling in null values
+    with 0 and calculating 'gdp_per_capita' per country
+    :param df: data
+    :return: pandas dataframe of processed data
+    """
+
     df.fillna(0, inplace=True)
     df["gdp_per_capita"] = df.apply(lambda row: row["gdp"] / row["population"] if row["population"] != 0 else 0, axis=1)
     return df
 
 def filter_data(df, selected_locations):
-    # Filter data based on selected locations: countries, continents, or both
+
+    """
+    Filters data by selecting only specified countries/continents
+    :param df: dataset
+    :param selected_locations: list of locations to filter in
+    :return: pandas dataframe of filtered data with specified locations 
+    """
+    
     return df[df["country"].isin(selected_locations)]
 
-def filter_continents(df):
-    # Filter data based on continents
-    continents = ['Asia', 'Oceania', 'Europe', 'Africa', 'North America', 'South America', 'Antarctica']
-    return df[df["country"].isin(continents)]
 
 def remove_non_countries(df):
-    # Remove non-countries to get country level information
+    
+    """
+    Filters data by removing all datapoints with a non-country instance
+    :param df: dataset
+    :return: pandas dataframe of filtered data with only countries included
+    """
+
     non_countries = ['World', 'Asia', 'Oceania', 'Europe', 'Africa', 'North America', 'South America', 'Antarctica',
                      'Africa (GCP)', 'Asia (GCP)', "Asia (excl. China and India)", "Central America (GCP)", "Europe (GCP)",
                      'Europe (excl. EU-27)', "Europe (excl. EU-28)", "European Union (27)", "European Union (27) (GCP)",
@@ -32,13 +57,22 @@ def remove_non_countries(df):
                      'Lower-middle-income countries', 'Micronesia (country)', 'Middle East (GCP)', 'Non-OECD (GCP)', 'North America (GCP)',
                      'North America (excl. USA)', 'OECD (GCP)', 'Oceania (GCP)', 'Ryukyu Islands (GCP)', 'Saint Martin (French part)', 'Sint Maarten (Dutch part)',
                      'South America (GCP)', 'Upper-middle-income countries']
+
     return df[df["country"].isin(non_countries) == False]
 
-# Create line chart of co2 emissions over time per continent
+
 def plot_greenhouse_gas_emissions(df, ghg, year_range, selected_continents):
-    # st.title(f"{ghg} emissions over time")
     
-    # Filter data based on countries
+    """
+    Creates a line chart of co2 emissions over time per continent
+    :param df: dataset
+    :param ghg: type of greenhouse gas
+    :param year_range: selected time interval to display
+    :param selected_continents: selected continents to display
+    :return: streamlit line chart of specific greenhouse gas 
+    """
+    
+    # Filter data based on continents
     filtered_df = filter_data(df, selected_continents)
 
     # Remove years with no values
@@ -55,10 +89,19 @@ def plot_greenhouse_gas_emissions(df, ghg, year_range, selected_continents):
     st.write(chart)
 
 
-# Create scatter plot of co2 vs gdp per capita
+# 
 def plot_co2_vs_gdp(df, ghg, year_range, selected_countries):
     
-    # filter_df based on maximum year on slider and selected countries in multiselect box
+    """
+    Creates a scatter plot of co2 emissions vs gdp per capita per selected countries
+    :param df: dataset
+    :param ghg: type of greenhouse gas
+    :param year_range: selected year range, will convert to year to display
+    :param selected_countries: selected countries to display
+    :return: streamlit scatter chart of specific greenhouse gas
+    """
+
+    # filter_df based on maximum year on slider year range and selected countries in multiselect box
     filtered_df = df[df['year'] == max(year_range)]
     filtered_df = filtered_df[filtered_df["country"].isin(selected_countries)]
 
@@ -83,6 +126,15 @@ def plot_co2_vs_gdp(df, ghg, year_range, selected_countries):
 
 
 def plot_co2_sources(df, year_range, selected_sources, selected_locations):
+
+    """
+    Creates a grouped bar char of co2 sources per country/continent
+    :param df: dataset
+    :param ghg: type of greenhouse gas
+    :param year_range: selected year range, will convert to year to display
+    :param selected_locations: selected countries/continents to display
+    :return: streamlit grouped bar chart of specified co2 emission source per location
+    """
 
     # filter_df based on maximum year on slider and selected countries in multiselect box
     filtered_df = df[df['year'] == max(year_range)]
