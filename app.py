@@ -3,6 +3,7 @@ import streamlit as st
 
 st.set_page_config(page_title="GHG Emissions Dashboard", layout="wide")
 
+# dataset gotten from our world in data github
 url = "https://raw.githubusercontent.com/owid/co2-data/master/owid-co2-data.csv"
 df = get_data_from_url(url)
 df = process_data(df)
@@ -18,6 +19,7 @@ selected_countries = st.sidebar.multiselect("Select countries for GHG vs GDP Per
 
 #multiselect box for co2 emission sources
 selected_sources = st.sidebar.multiselect("Select CO2 emission sources", options=["coal_co2", "gas_co2", "flaring_co2", "oil_co2", "other_industry_co2", "cement_co2"], default=["coal_co2", "gas_co2", "flaring_co2", "oil_co2", "other_industry_co2", "cement_co2"])
+
 st.title("Greenhouse Gas Emissions Over Time")
 
 col1, col2 = st.columns(2, gap="medium")
