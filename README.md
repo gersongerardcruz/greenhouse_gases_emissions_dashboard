@@ -1,5 +1,7 @@
 # Greenhouse Gases Emissions Visualization with Streamlit
 
+![snapshot](dashboard_snapshot.jpg)
+
 ## Rationale 
 
 Greenhouse gases are gaseous compounds that are capable of trapping heat in the atmosphere. They include carbon dioxide (CO2), methane (CH4), nitrous oxide (N2O), and fluorinated gases. These gases help regulate the temperature of the Earth by trapping heat that would otherwise escape into space.
