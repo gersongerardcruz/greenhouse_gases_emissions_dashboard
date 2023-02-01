@@ -24,8 +24,12 @@ conda activate ghg_emissions
 The next step is to clone the repository in the virtual environment by running:
 
 ```python
-git clone <repo_link>
+HTTPS: git clone https://github.com/gersongerardcruz/greenhouse_gases_emissions_dashboard.git 
+
+SSH: git clone git@github.com:gersongerardcruz/greenhouse_gases_emissions_dashboard.git
 ```
+
+
 
 Then, move into the repository and install the requirements with:
 
