@@ -16,7 +16,7 @@ The data used in this project is gotten from the [Our World in Data CO2 Emission
 
 ## The Application
 
-To run the application, first create a virtual environment. I used [miniconda](https://docs.conda.io/en/latest/miniconda.html) as my virtual environment manager and create an environment with the following command: 
+To run the application, first create a virtual environment. I used [miniconda](https://docs.conda.io/en/latest/miniconda.html) as my virtual environment manager and created an environment with the following command: 
 
 ```python
 conda create --name ghg_emissions python=3.9
