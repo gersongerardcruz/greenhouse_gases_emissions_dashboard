@@ -27,7 +27,8 @@ The next step is to clone the repository in the virtual environment by running:
 
 ```python
 HTTPS: git clone https://github.com/gersongerardcruz/greenhouse_gases_emissions_dashboard.git 
-
+```
+```python
 SSH: git clone git@github.com:gersongerardcruz/greenhouse_gases_emissions_dashboard.git
 ```
 
